@@ -2,7 +2,7 @@
 
 ## v0.6.1
 
-- Added handle_info for :ssl_error
+- Added handle_info for :ssl_error along an error level log
 
 ## v0.6.0
 

@@ -257,6 +257,28 @@ defmodule KadabraTest do
     assert_receive {:DOWN, ^ref, :process, ^pid, :shutdown}, 5_000
   end
 
+  test "socket error message closes connection", _context do
+    pid =
+      @golang_uri
+      |> Kadabra.open()
+      |> elem(1)
+
+    ref = Process.monitor(pid)
+
+    conn_pid = :sys.get_state(pid).connection
+    socket_pid = :sys.get_state(conn_pid).config.socket
+
+    reason =
+      {:tls_alert,
+       {:certificate_expired,
+        "TLS client: In state connection received SERVER ALERT: Fatal - Certificate Expired\n"}}
+
+    send(socket_pid, {:ssl_error, nil, reason})
+
+    assert_receive {:closed, ^pid}, 5_000
+    assert_receive {:DOWN, ^ref, :process, ^pid, :shutdown}, 5_000
+  end
+
   # @tag :golang
   # test "handles extremely large headers", _context do
   #   pid =

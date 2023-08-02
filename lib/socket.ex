@@ -9,6 +9,8 @@ defmodule Kadabra.Socket do
 
   use GenServer
 
+  require Logger
+
   @type ssl_sock :: {:sslsocket, any, pid | {any, any}}
 
   @type connection_result ::
@@ -193,7 +195,11 @@ defmodule Kadabra.Socket do
     {:noreply, %{state | socket: nil}}
   end
 
-  def handle_info({:ssl_error, _socket, _reason}, state) do
+  def handle_info({:ssl_error, _socket, reason}, state) do
+    Logger.error(
+      "[#{__MODULE__}] Received an SSL error. Reason: #{inspect(reason)}"
+    )
+
     Kernel.send(state.active_user, {:closed, self()})
     {:noreply, %{state | socket: nil}}
   end
