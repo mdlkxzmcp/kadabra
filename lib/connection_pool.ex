@@ -1,9 +1,8 @@
 defmodule Kadabra.ConnectionPool do
   @moduledoc false
+  use GenServer
 
-  defstruct connection: nil,
-            pending_demand: 0,
-            events: []
+  alias Kadabra.Connection
 
   @type t :: %__MODULE__{
           connection: pid,
@@ -11,7 +10,9 @@ defmodule Kadabra.ConnectionPool do
           events: [any, ...]
         }
 
-  alias Kadabra.Connection
+  defstruct connection: nil,
+            pending_demand: 0,
+            events: []
 
   @spec start_link(URI.t(), pid, Keyword.t()) :: {:ok, pid}
   def start_link(uri, pid, opts) do
@@ -51,6 +52,7 @@ defmodule Kadabra.ConnectionPool do
 
   ## Callbacks
 
+  @impl GenServer
   def init(config) do
     config = %{config | queue: self()}
 
@@ -60,6 +62,7 @@ defmodule Kadabra.ConnectionPool do
     {:ok, %__MODULE__{connection: connection}}
   end
 
+  @impl GenServer
   def handle_cast({:ask, demand}, state) do
     state =
       state
@@ -69,6 +72,7 @@ defmodule Kadabra.ConnectionPool do
     {:noreply, state}
   end
 
+  @impl GenServer
   def handle_call(:close, _from, state) do
     Connection.close(state.connection)
     {:stop, :shutdown, :ok, state}
@@ -90,6 +94,7 @@ defmodule Kadabra.ConnectionPool do
     {:noreply, state}
   end
 
+  @impl GenServer
   def handle_info({:EXIT, _pid, :shutdown}, state) do
     {:stop, :shutdown, state}
   end
@@ -98,6 +103,7 @@ defmodule Kadabra.ConnectionPool do
     {:stop, :shutdown, state}
   end
 
+  @impl GenServer
   def terminate(_reason, _state) do
     :ok
   end

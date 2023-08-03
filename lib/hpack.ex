@@ -21,10 +21,12 @@ defmodule Kadabra.Hpack do
 
   ## Callbacks
 
+  @impl GenServer
   def init(:ok) do
     {:ok, :hpack.new_context()}
   end
 
+  @impl GenServer
   def handle_call({:encode, headers}, _pid, state) do
     {:ok, {bin, new_state}} = :hpack.encode(headers, state)
     {:reply, {:ok, bin}, new_state}
