@@ -44,7 +44,7 @@ defmodule Kadabra.Mixfile do
 
   defp deps do
     [
-      {:certifi, "~> 2.5"},
+      {:certifi, "~> 2.12"},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
