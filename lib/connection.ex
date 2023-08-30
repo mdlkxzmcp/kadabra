@@ -76,6 +76,9 @@ defmodule Kadabra.Connection do
       Process.flag(:trap_exit, true)
 
       {:ok, state}
+    else
+      {:error, reason} ->
+        {:stop, reason}
     end
   end
 
