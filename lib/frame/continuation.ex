@@ -1,9 +1,9 @@
 defmodule Kadabra.Frame.Continuation do
   @moduledoc false
 
-  defstruct [:header_block_fragment, :stream_id, end_headers: false]
-
   use Bitwise
+
+  alias Kadabra.Frame
 
   @type t :: %__MODULE__{
           end_headers: boolean,
@@ -11,7 +11,7 @@ defmodule Kadabra.Frame.Continuation do
           stream_id: pos_integer
         }
 
-  alias Kadabra.Frame
+  defstruct [:header_block_fragment, :stream_id, end_headers: false]
 
   @doc ~S"""
   Initializes a new `Frame.Continuation` given a `Frame`.

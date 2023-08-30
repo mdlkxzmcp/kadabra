@@ -1,8 +1,6 @@
 defmodule Kadabra.Frame.Settings do
   @moduledoc false
 
-  defstruct [:settings, ack: false]
-
   use Bitwise
 
   alias Kadabra.Connection
@@ -11,6 +9,8 @@ defmodule Kadabra.Frame.Settings do
           ack: boolean,
           settings: Connection.Settings.t() | nil
         }
+
+  defstruct [:settings, ack: false]
 
   @spec ack :: t
   def ack do

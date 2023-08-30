@@ -1,14 +1,14 @@
 defmodule Kadabra.Frame.RstStream do
   @moduledoc false
 
-  defstruct [:stream_id, :error_code]
-
   alias Kadabra.{Error, Frame}
 
   @type t :: %__MODULE__{
           error_code: <<_::32>>,
           stream_id: non_neg_integer
         }
+
+  defstruct [:stream_id, :error_code]
 
   @spec new(non_neg_integer) :: t
   def new(stream_id) when is_integer(stream_id) do

@@ -19,14 +19,14 @@ defmodule Kadabra.Stream.Response do
       }
   """
 
-  defstruct [:id, :headers, :body, :status]
-
   @type t :: %__MODULE__{
           id: non_neg_integer,
           headers: Keyword.t(),
           body: String.t(),
           status: integer
         }
+
+  defstruct [:id, :headers, :body, :status]
 
   @doc false
   @spec new(non_neg_integer, Keyword.t(), String.t()) :: t

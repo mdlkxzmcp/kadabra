@@ -1,19 +1,13 @@
 defmodule Kadabra.Connection.FlowControl do
   @moduledoc false
 
+  alias Kadabra.{Config, Stream, StreamSet}
+
   @default_window_size round(:math.pow(2, 16) - 1)
   @max_window_size round(:math.pow(2, 31) - 1)
 
   @default_initial_window_size round(:math.pow(2, 16) - 1)
   @default_max_frame_size round(:math.pow(2, 14))
-
-  defstruct queue: :queue.new(),
-            stream_set: %Kadabra.StreamSet{},
-            initial_window_size: @default_initial_window_size,
-            max_frame_size: @default_max_frame_size,
-            window: @default_window_size
-
-  alias Kadabra.{Config, Stream, StreamSet}
 
   @type t :: %__MODULE__{
           queue: :queue.queue(),
@@ -22,6 +16,12 @@ defmodule Kadabra.Connection.FlowControl do
           max_frame_size: non_neg_integer,
           window: integer
         }
+
+  defstruct queue: :queue.new(),
+            stream_set: %Kadabra.StreamSet{},
+            initial_window_size: @default_initial_window_size,
+            max_frame_size: @default_max_frame_size,
+            window: @default_window_size
 
   def window_default, do: @default_window_size
 

@@ -1,17 +1,17 @@
 defmodule Kadabra.StreamSet do
   @moduledoc false
 
-  defstruct stream_id: 1,
-            active_stream_count: 0,
-            active_streams: %{},
-            max_concurrent_streams: :infinite
-
   @type t :: %__MODULE__{
           stream_id: pos_integer,
           active_stream_count: non_neg_integer,
           active_streams: MapSet.t(),
           max_concurrent_streams: non_neg_integer | :infinite
         }
+
+  defstruct stream_id: 1,
+            active_stream_count: 0,
+            active_streams: %{},
+            max_concurrent_streams: :infinite
 
   def pid_for(set, stream_id) do
     set.active_streams[stream_id]

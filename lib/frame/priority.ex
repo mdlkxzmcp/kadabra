@@ -1,6 +1,5 @@
 defmodule Kadabra.Frame.Priority do
   @moduledoc false
-  defstruct [:stream_dependency, :weight, exclusive: false]
 
   alias Kadabra.Frame
 
@@ -9,6 +8,8 @@ defmodule Kadabra.Frame.Priority do
           stream_dependency: non_neg_integer,
           weight: integer
         }
+
+  defstruct [:stream_dependency, :weight, exclusive: false]
 
   @doc ~S"""
   Initializes a new `Frame.Priority` from given `Frame`

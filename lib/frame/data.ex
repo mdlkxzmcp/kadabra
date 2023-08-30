@@ -1,8 +1,6 @@
 defmodule Kadabra.Frame.Data do
   @moduledoc false
 
-  defstruct [:stream_id, :data, end_stream: false]
-
   use Bitwise
 
   alias Kadabra.Frame
@@ -12,6 +10,8 @@ defmodule Kadabra.Frame.Data do
           end_stream: boolean,
           stream_id: pos_integer
         }
+
+  defstruct [:stream_id, :data, end_stream: false]
 
   @spec new(Frame.t()) :: t
   def new(%{stream_id: stream_id, payload: data, flags: flags}) do

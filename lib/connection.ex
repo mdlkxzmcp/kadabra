@@ -1,17 +1,7 @@
 defmodule Kadabra.Connection do
   @moduledoc false
 
-  defstruct buffer: "",
-            config: nil,
-            flow_control: nil,
-            remote_window: 65_535,
-            remote_settings: nil,
-            requested_streams: 0,
-            local_settings: nil,
-            queue: nil
-
   use GenServer
-  require Logger
 
   import Kernel, except: [send: 2]
 
@@ -24,20 +14,52 @@ defmodule Kadabra.Connection do
 
   alias Kadabra.Connection.{Egress, FlowControl, Processor}
 
+  @type sock :: {:sslsocket, any, pid | {any, any}}
+
   @type t :: %__MODULE__{
           buffer: binary,
-          config: term,
-          flow_control: term,
+          config: map,
+          flow_control: FlowControl.t(),
           local_settings: Connection.Settings.t(),
           queue: pid
         }
 
-  @type sock :: {:sslsocket, any, pid | {any, any}}
+  defstruct buffer: "",
+            config: nil,
+            flow_control: nil,
+            remote_window: 65_535,
+            remote_settings: nil,
+            requested_streams: 0,
+            local_settings: nil,
+            queue: nil
 
   def start_link(%Config{} = config) do
     GenServer.start_link(__MODULE__, config)
   end
 
+  @spec close(pid) :: {:stop, :shutdown, :ok, t()}
+  def close(pid) do
+    GenServer.call(pid, :close)
+  end
+
+  @spec ping(pid) :: :ok
+  def ping(pid) do
+    GenServer.cast(pid, {:send, :ping})
+  end
+
+  @spec sendf(:goaway | :ping, t) :: {:noreply, t}
+  def sendf(:ping, %Connection{config: config} = state) do
+    Egress.send_ping(config.socket)
+    {:noreply, state}
+  end
+
+  def sendf(_else, state) do
+    {:noreply, state}
+  end
+
+  ## Callbacks
+
+  @impl GenServer
   def init(%Config{} = config) do
     with {:ok, encoder} <- Hpack.start_link(),
          {:ok, decoder} <- Hpack.start_link(),
@@ -68,16 +90,7 @@ defmodule Kadabra.Connection do
     }
   end
 
-  def close(pid) do
-    GenServer.call(pid, :close)
-  end
-
-  def ping(pid) do
-    GenServer.cast(pid, {:send, :ping})
-  end
-
-  # handle_cast
-
+  @impl GenServer
   def handle_cast({:send, type}, state) do
     sendf(type, state)
   end
@@ -91,8 +104,16 @@ defmodule Kadabra.Connection do
     {:noreply, state}
   end
 
-  # handle_call
+  defp do_send_headers(request, %{flow_control: flow} = state) do
+    flow =
+      flow
+      |> FlowControl.add(request)
+      |> FlowControl.process(state.config)
 
+    %{state | flow_control: flow}
+  end
+
+  @impl GenServer
   def handle_call(:close, _from, %Connection{} = state) do
     %Connection{
       flow_control: flow,
@@ -104,27 +125,7 @@ defmodule Kadabra.Connection do
     {:stop, :shutdown, :ok, state}
   end
 
-  # sendf
-
-  @spec sendf(:goaway | :ping, t) :: {:noreply, t}
-  def sendf(:ping, %Connection{config: config} = state) do
-    Egress.send_ping(config.socket)
-    {:noreply, state}
-  end
-
-  def sendf(_else, state) do
-    {:noreply, state}
-  end
-
-  defp do_send_headers(request, %{flow_control: flow} = state) do
-    flow =
-      flow
-      |> FlowControl.add(request)
-      |> FlowControl.process(state.config)
-
-    %{state | flow_control: flow}
-  end
-
+  @impl GenServer
   def handle_info(:start, %{config: %{socket: socket}} = state) do
     Socket.set_active(socket)
     Egress.send_local_settings(socket, state.local_settings)
@@ -169,6 +170,7 @@ defmodule Kadabra.Connection do
     end
   end
 
+  @impl GenServer
   def terminate(_reason, %{config: config}) do
     Kernel.send(config.client, {:closed, config.queue})
     :ok

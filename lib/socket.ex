@@ -1,23 +1,20 @@
 defmodule Kadabra.Socket do
   @moduledoc false
 
-  defstruct socket: nil, buffer: "", active_user: nil
-
-  alias Kadabra.FrameParser
+  use GenServer
 
   import Kernel, except: [send: 2]
 
-  use GenServer
-
-  require Logger
+  alias Kadabra.FrameParser
 
   @type ssl_sock :: {:sslsocket, any, pid | {any, any}}
 
   @type connection_result ::
           {:ok, ssl_sock}
           | {:ok, pid}
-          | {:error, :not_implmenented}
           | {:error, :bad_scheme}
+
+  defstruct socket: nil, buffer: "", active_user: nil
 
   @spec connection_preface() :: String.t()
   def connection_preface, do: "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
@@ -34,6 +31,7 @@ defmodule Kadabra.Socket do
     GenServer.start_link(__MODULE__, {uri, opts})
   end
 
+  @impl GenServer
   def init({uri, opts}) do
     case connect(uri, opts) do
       {:ok, socket} ->
@@ -149,8 +147,7 @@ defmodule Kadabra.Socket do
     :inet.setopts(pid, opts)
   end
 
-  # handle_call
-
+  @impl GenServer
   def handle_call({:set_active, pid}, _from, state) do
     {:reply, :ok, %{state | active_user: pid}}
   end
@@ -170,8 +167,7 @@ defmodule Kadabra.Socket do
     {:reply, :ok, state}
   end
 
-  # handle_info
-
+  @impl GenServer
   def handle_info(:send_preface, state) do
     socket_send(state.socket, connection_preface())
     {:noreply, state}
