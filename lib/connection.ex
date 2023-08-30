@@ -5,8 +5,6 @@ defmodule Kadabra.Connection do
 
   import Kernel, except: [send: 2]
 
-  require Logger
-
   alias Kadabra.{
     Config,
     Connection,

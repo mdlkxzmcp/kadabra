@@ -5,9 +5,7 @@ defmodule Kadabra.Socket do
 
   import Kernel, except: [send: 2]
 
-  use GenServer
-
-  require Logger
+  alias Kadabra.FrameParser
 
   @type ssl_sock :: {:sslsocket, any, pid | {any, any}}
 
