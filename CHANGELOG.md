@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Bump Certifi from 2.5.3 to 2.12.0
+
 ## v0.6.1
 
 - Added handle_info for :ssl_error
