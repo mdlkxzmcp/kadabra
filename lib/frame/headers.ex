@@ -1,14 +1,9 @@
 defmodule Kadabra.Frame.Headers do
   @moduledoc false
 
-  defstruct end_headers: false,
-            end_stream: false,
-            exclusive: nil,
-            header_block_fragment: nil,
-            priority: false,
-            stream_dependency: nil,
-            stream_id: nil,
-            weight: nil
+  use Bitwise
+
+  alias Kadabra.Frame
 
   @type t :: %__MODULE__{
           end_headers: boolean,
@@ -21,9 +16,14 @@ defmodule Kadabra.Frame.Headers do
           weight: non_neg_integer
         }
 
-  use Bitwise
-
-  alias Kadabra.Frame
+  defstruct end_headers: false,
+            end_stream: false,
+            exclusive: nil,
+            header_block_fragment: nil,
+            priority: false,
+            stream_dependency: nil,
+            stream_id: nil,
+            weight: nil
 
   @doc ~S"""
   Initializes a new `Frame.Headers` from given `Frame`.

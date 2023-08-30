@@ -1,27 +1,11 @@
 defmodule Kadabra.Connection.Settings do
   @moduledoc false
 
+  alias Kadabra.Error
+
   @default_header_table_size 4096
   @default_initial_window_size round(:math.pow(2, 16) - 1)
   @default_max_frame_size round(:math.pow(2, 14))
-
-  defstruct enable_push: true,
-            header_table_size: @default_header_table_size,
-            initial_window_size: @default_initial_window_size,
-            max_concurrent_streams: :infinite,
-            max_frame_size: @default_max_frame_size,
-            max_header_list_size: nil
-
-  alias Kadabra.Error
-
-  @type t :: %__MODULE__{
-          header_table_size: non_neg_integer,
-          enable_push: boolean,
-          max_concurrent_streams: non_neg_integer | :infinite,
-          initial_window_size: non_neg_integer,
-          max_frame_size: non_neg_integer,
-          max_header_list_size: non_neg_integer
-        }
 
   @table_header_size 0x1
   @enable_push 0x2
@@ -32,6 +16,22 @@ defmodule Kadabra.Connection.Settings do
 
   @max_initial_window_size round(:math.pow(2, 31) - 1)
   @max_max_frame_size round(:math.pow(2, 24) - 1)
+
+  @type t :: %__MODULE__{
+          header_table_size: non_neg_integer,
+          enable_push: boolean,
+          max_concurrent_streams: non_neg_integer | :infinite,
+          initial_window_size: non_neg_integer,
+          max_frame_size: non_neg_integer,
+          max_header_list_size: non_neg_integer
+        }
+
+  defstruct enable_push: true,
+            header_table_size: @default_header_table_size,
+            initial_window_size: @default_initial_window_size,
+            max_concurrent_streams: :infinite,
+            max_frame_size: @default_max_frame_size,
+            max_header_list_size: nil
 
   def default do
     %__MODULE__{}

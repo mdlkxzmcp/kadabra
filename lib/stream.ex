@@ -1,18 +1,6 @@
 defmodule Kadabra.Stream do
   @moduledoc false
 
-  defstruct id: nil,
-            body: "",
-            client: nil,
-            connection: nil,
-            socket: nil,
-            encoder: nil,
-            decoder: nil,
-            flow: nil,
-            uri: nil,
-            headers: [],
-            on_response: nil
-
   require Logger
 
   alias Kadabra.{Encodable, Frame, Hpack, Packetizer, Socket, Stream, Tasks}
@@ -27,16 +15,7 @@ defmodule Kadabra.Stream do
   }
 
   alias Kadabra.Stream.Response
-
-  @type t :: %__MODULE__{
-          id: pos_integer,
-          client: pid,
-          connection: pid,
-          uri: URI.t(),
-          flow: Kadabra.Stream.FlowControl.t(),
-          headers: [...],
-          body: binary
-        }
+  alias Kadabra.Stream.FlowControl
 
   @closed :closed
   @hc_local :half_closed_local
@@ -45,6 +24,28 @@ defmodule Kadabra.Stream do
   @open :open
   # @reserved_local :reserved_local
   @reserved_remote :reserved_remote
+
+  @type t :: %__MODULE__{
+          id: pos_integer,
+          client: pid,
+          connection: pid,
+          uri: URI.t(),
+          flow: FlowControl.t(),
+          headers: [...],
+          body: binary
+        }
+
+  defstruct id: nil,
+            body: "",
+            client: nil,
+            connection: nil,
+            socket: nil,
+            encoder: nil,
+            decoder: nil,
+            flow: nil,
+            uri: nil,
+            headers: [],
+            on_response: nil
 
   def new(config, stream_id, initial_window_size, max_frame_size) do
     flow_opts = [
@@ -60,7 +61,7 @@ defmodule Kadabra.Stream do
       encoder: config.encoder,
       decoder: config.decoder,
       connection: self(),
-      flow: Stream.FlowControl.new(flow_opts)
+      flow: FlowControl.new(flow_opts)
     }
   end
 
@@ -146,8 +147,8 @@ defmodule Kadabra.Stream do
 
     flow =
       stream.flow
-      |> Stream.FlowControl.increment_window(inc)
-      |> Stream.FlowControl.process()
+      |> FlowControl.increment_window(inc)
+      |> FlowControl.process()
       |> send_data_frames(stream.socket, stream.id)
 
     {:keep_state, %{stream | flow: flow}}
@@ -197,8 +198,8 @@ defmodule Kadabra.Stream do
   def handle_event(:info, {:settings_change, window, max_frame}, _, stream) do
     flow =
       stream.flow
-      |> Stream.FlowControl.increment_window(window)
-      |> Stream.FlowControl.set_max_frame_size(max_frame)
+      |> FlowControl.increment_window(window)
+      |> FlowControl.set_max_frame_size(max_frame)
 
     {:keep_state, %{stream | flow: flow}}
   end
@@ -282,8 +283,8 @@ defmodule Kadabra.Stream do
   defp process_payload_if_needed(stream, payload) do
     flow =
       stream.flow
-      |> Stream.FlowControl.add(payload)
-      |> Stream.FlowControl.process()
+      |> FlowControl.add(payload)
+      |> FlowControl.process()
       |> send_data_frames(stream.socket, stream.id)
 
     %{stream | flow: flow}
@@ -309,7 +310,7 @@ defmodule Kadabra.Stream do
 
   def callback_mode, do: [:handle_event_function, :state_enter]
 
-  def terminate(_reason, _state, _stream), do: :void
+  def terminate(_reason, _state), do: :void
 
-  def code_change(_vsn, state, data, _extra), do: {:ok, state, data}
+  def code_change(_vsn, state, _extra), do: {:ok, state}
 end

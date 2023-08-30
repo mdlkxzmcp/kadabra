@@ -1,10 +1,6 @@
 defmodule Kadabra.Frame.PushPromise do
   @moduledoc false
 
-  defstruct end_headers: false,
-            header_block_fragment: nil,
-            stream_id: nil
-
   use Bitwise
 
   alias Kadabra.Frame
@@ -14,6 +10,10 @@ defmodule Kadabra.Frame.PushPromise do
           header_block_fragment: bitstring,
           stream_id: non_neg_integer
         }
+
+  defstruct end_headers: false,
+            header_block_fragment: nil,
+            stream_id: nil
 
   @doc ~S"""
   Initializes a new `Frame.PushPromise` given a `Frame`.

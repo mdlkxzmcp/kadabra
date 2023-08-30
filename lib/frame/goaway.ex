@@ -1,8 +1,6 @@
 defmodule Kadabra.Frame.Goaway do
   @moduledoc false
 
-  defstruct last_stream_id: nil, error_code: nil, debug_data: <<>>
-
   alias Kadabra.{Error, Frame}
 
   @type t :: %__MODULE__{
@@ -10,6 +8,8 @@ defmodule Kadabra.Frame.Goaway do
           error_code: <<_::32>>,
           last_stream_id: non_neg_integer
         }
+
+  defstruct last_stream_id: nil, error_code: nil, debug_data: <<>>
 
   @doc ~S"""
   Initializes a new GOAWAY frame with no error.

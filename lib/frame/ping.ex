@@ -1,8 +1,6 @@
 defmodule Kadabra.Frame.Ping do
   @moduledoc false
 
-  defstruct [:data, stream_id: 0, ack: false]
-
   use Bitwise
 
   alias Kadabra.Frame
@@ -12,6 +10,8 @@ defmodule Kadabra.Frame.Ping do
           data: <<_::64>>,
           stream_id: integer
         }
+
+  defstruct [:data, stream_id: 0, ack: false]
 
   @doc ~S"""
   Returns new unacked ping frame.

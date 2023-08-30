@@ -1,8 +1,6 @@
 defmodule Kadabra.Frame do
   @moduledoc false
 
-  defstruct [:length, :type, :flags, :stream_id, :payload]
-
   @type t :: %__MODULE__{
           length: non_neg_integer,
           type: non_neg_integer,
@@ -10,6 +8,8 @@ defmodule Kadabra.Frame do
           stream_id: non_neg_integer,
           payload: bitstring
         }
+
+  defstruct [:length, :type, :flags, :stream_id, :payload]
 
   @spec new(binary) :: {:ok, t, binary} | {:error, binary}
   def new(<<p_size::24, type::8, f::8, 0::1, s_id::31, p::bitstring>> = bin) do

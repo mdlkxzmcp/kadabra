@@ -1,14 +1,6 @@
 defmodule Kadabra.Config do
   @moduledoc false
 
-  defstruct client: nil,
-            encoder: nil,
-            decoder: nil,
-            queue: nil,
-            uri: nil,
-            socket: nil,
-            opts: []
-
   @type t :: %__MODULE__{
           client: pid,
           encoder: pid,
@@ -18,4 +10,12 @@ defmodule Kadabra.Config do
           socket: pid,
           opts: Keyword.t()
         }
+
+  defstruct client: nil,
+            encoder: nil,
+            decoder: nil,
+            queue: nil,
+            uri: nil,
+            socket: nil,
+            opts: []
 end

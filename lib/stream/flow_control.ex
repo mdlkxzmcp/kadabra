@@ -6,10 +6,9 @@ defmodule Kadabra.Stream.FlowControl do
   @default_max_frame round(:math.pow(2, 14))
   @default_window round(:math.pow(2, 16) - 1)
 
-  defstruct queue: :queue.new(),
-            out_queue: :queue.new(),
-            window: @default_window,
-            max_frame_size: @default_max_frame
+  @type sock :: {:sslsocket, any, pid | {any, any}}
+
+  @type frame :: {:send, binary}
 
   @type t :: %__MODULE__{
           max_frame_size: non_neg_integer,
@@ -18,9 +17,10 @@ defmodule Kadabra.Stream.FlowControl do
           window: integer
         }
 
-  @type sock :: {:sslsocket, any, pid | {any, any}}
-
-  @type frame :: {:send, binary}
+  defstruct queue: :queue.new(),
+            out_queue: :queue.new(),
+            window: @default_window,
+            max_frame_size: @default_max_frame
 
   @doc ~S"""
   Returns new `Kadabra.Stream.FlowControl` with given opts.
