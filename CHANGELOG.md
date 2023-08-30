@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.7.0
+
 - Bumped Certifi from 2.5.3 to 2.12.0
 - Fixed bad match error in Connection due to Socket.start_link/2 returning an error tuple
 - Added missing use GenServer + @impl directives
